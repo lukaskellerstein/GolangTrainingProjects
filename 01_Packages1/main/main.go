@@ -1,7 +1,8 @@
 package main
 
 import "fmt"
-import "github.com/lukaskellerstein/GolangTrainingProjects/01_Packages1/somepackage1"
+import "../somepackage1"
+import "../somepackage2"
 
 func main() {
 	aaa := ""
@@ -13,4 +14,7 @@ func main() {
 
 	ccc := somepackage1.GetData()
 	fmt.Println(ccc)
+
+	ddd := somepackage2.GetData()
+	fmt.Println(ddd)
 }
