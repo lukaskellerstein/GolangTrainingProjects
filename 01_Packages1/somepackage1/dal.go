@@ -1,5 +1,6 @@
 package somepackage1
 
-func getData() []string {
+//GetData - some testing function
+func GetData() []string {
 	return []string{"adsf", "asdf2", "asdf3", "asdf4"}
 }
