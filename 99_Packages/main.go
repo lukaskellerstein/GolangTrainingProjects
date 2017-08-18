@@ -6,6 +6,8 @@ package main
 
 // Sort package - https://golang.org/pkg/sort/#Sort
 
+// Crypto packages - https://godoc.org/crypto
+
 // IO package
 // https://godoc.org/io
 // https://godoc.org/bufio
