@@ -7,6 +7,8 @@ import (
 var a string
 var b int
 var c, d, e int
+var f float32
+var g bool
 
 var za, zb, zc int = 1, 2, 3
 var ya, yb, yc = 1, 2, 3
