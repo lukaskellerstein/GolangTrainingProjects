@@ -2,7 +2,7 @@ package main
 
 // Go lang runtime - https://godoc.org/runtime
 
-// Strings package -
+// Strings package - https://godoc.org/strings
 
 // Regex package - https://godoc.org/regexp
 

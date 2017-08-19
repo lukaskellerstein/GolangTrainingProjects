@@ -21,6 +21,7 @@ func main() {
 // SHARED RESOURCE ------
 var counter int
 
+// RACE CONDITION
 // resource will be edited at same time multiple resource,
 // but when set value first function,
 // this value will be override second function
