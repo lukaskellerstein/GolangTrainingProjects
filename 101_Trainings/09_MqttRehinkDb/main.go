@@ -22,32 +22,70 @@ type SenzorData struct {
 	Date        time.Time `gorethink:"date"`
 }
 
-var session *r.Session
-var err error 
-
 func main() {
 	fmt.Println("START")
 
+	//--------------------------------------------------
 	//RethinkDB ----------------------------------------
-	session, err = r.Connect(r.ConnectOpts{
-		Address:  "localhost:28015",
-		Database: "test",
-	})
+	//--------------------------------------------------
+
+	//***************************
+	fmt.Println("open session1")
+	session1 := connectToDB()
+	//***************************
+
+	//Recreate tables if not exists -----------
+	var response []interface{}
+	res, err := r.DB("test").TableList().Run(session1)
+
+	//***************************
+	fmt.Println("close session1")
+	closeConnectionToDB(session1)
+	//***************************
+
+	//QQQQ - proc tam davam "&" - Memory address a ne cely objekt ?
+	err = res.All(&response)
 	if err != nil {
+		log.Println("2")
+		fmt.Println(err)
+	}
+
+	//check if table exist
+	isExistSenzorDataTable := false
+	for _, db := range response {
+		if db == "SenzorData" {
+			isExistSenzorDataTable = true
+		}
+	}
+
+	//Recreate tables ------------------------
+	if isExistSenzorDataTable == false {
+		// err = r.DB("test").TableDrop("SenzorData").Exec(session)
+
+		//***************************
+		fmt.Println("open session2")
+		session2 := connectToDB()
+		//***************************
+
+		err = r.DB("test").TableCreate("SenzorData").Exec(session2)
+
+		//***************************
+		fmt.Println("close session2")
+		closeConnectionToDB(session2)
+		//***************************
+	}
+
+	//Create indexes ------------------------
+	// _, err = r.DB("test").Table("SenzorData").IndexCreate("senzorid").Run(session)
+	// _, err = r.DB("test").Table("SenzorData").IndexCreate("measurement").Run(session)
+	if err != nil {
+		log.Println("3")
 		log.Fatalln(err)
 	}
 
-	//Recreate tables
-	// err = r.DB("test").TableDrop("SenzorData").Exec(session)
-	// err = r.DB("test").TableCreate("SenzorData").Exec(session)
-
-	_, err = r.DB("test").Table("SenzorData").IndexCreate("senzorid").Run(session)
-	_, err = r.DB("test").Table("SenzorData").IndexCreate("measurement").Run(session)
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	//MQTT ----------------------------------------
+	//--------------------------------------------------
+	//MQTT ---------------------------------------------
+	//--------------------------------------------------
 
 	// Set up channel on which to send signal notifications.
 	sigc := make(chan os.Signal, 1)
@@ -57,6 +95,7 @@ func main() {
 	cli := client.New(&client.Options{
 		// Define the processing of the error handler.
 		ErrorHandler: func(err error) {
+			log.Println("4")
 			fmt.Println(err)
 		},
 	})
@@ -71,6 +110,7 @@ func main() {
 		ClientID: []byte("example-client5"),
 	})
 	if err2 != nil {
+		log.Println("5")
 		panic(err2)
 	}
 
@@ -98,6 +138,7 @@ func main() {
 		},
 	})
 	if err2 != nil {
+		log.Println("6")
 		panic(err2)
 	}
 
@@ -106,6 +147,7 @@ func main() {
 
 	// Disconnect the Network Connection.
 	if err2 := cli.Disconnect(); err2 != nil {
+		log.Println("7")
 		panic(err2)
 	}
 
@@ -129,46 +171,103 @@ func processMessage(topicName, message []byte) {
 	newdata.Values = append(newdata.Values, value)
 	newdata.Date = nowTime
 
+	//***************************
+	fmt.Println("open session3")
+	session3 := connectToDB()
+	//***************************
+
 	results2, err2 := r.DB("test").Table("SenzorData").Filter(func(row r.Term) r.Term {
 		return row.Field("senzorid").Eq(senzorID)
 	}).Filter(func(row r.Term) r.Term {
 		return row.Field("measurement").Eq(measurement)
-	}).Run(session)
+	}).Run(session3)
+
+	var response SenzorData
+	if results2.IsNil() == false {
+
+		err := results2.One(&response)
+
+		if err != nil {
+			log.Println("10")
+			log.Fatalln(err)
+		}
+	}
+
+	//***************************
+	fmt.Println("close session3")
+	closeConnectionToDB(session3)
+	//***************************
 
 	if err2 != nil {
+		log.Println("8")
 		log.Fatal(err2)
 	} else {
 
-		if results2.IsNil() {
+		if response.ID == "" {
+
+			//***************************
+			fmt.Println("open session4")
+			session4 := connectToDB()
+			//***************************
+
 			// INSERT NEW ONE ----------------------------
-			_, err := r.DB("test").Table("SenzorData").Insert(newdata).RunWrite(session)
+			_, err := r.DB("test").Table("SenzorData").Insert(newdata).RunWrite(session4)
+
+			//***************************
+			fmt.Println("close session4")
+			closeConnectionToDB(session4)
+			//***************************
 
 			if err != nil {
+				log.Println("9")
 				log.Fatal(err)
 			}
 			// -------------------------------------------
 		} else {
 			// UPDATE EXISTING ONE ----------------------------
-			var response SenzorData
-			err = results2.One(&response)
-
-			if err != nil {
-				log.Fatalln(err)
-			}
-			// fmt.Println(response)
 
 			//CHANGE
 			response.Values = append(response.Values, value)
 
+			//***************************
+			fmt.Println("session5")
+			session5 := connectToDB()
+			//***************************
+
 			//UPDATE
-			_, err3 := r.DB("test").Table("SenzorData").Update(response).Run(session)
+			_, err3 := r.DB("test").Table("SenzorData").Update(response).Run(session5)
+
+			//***************************
+			fmt.Println("close session5")
+			closeConnectionToDB(session5)
+			//***************************
+
 			if err3 != nil {
+				log.Println("11")
 				log.Fatalln(err3)
 			}
+
 			// ------------------------------------------------
 		}
 
 	}
 
 	fmt.Println(string(topicName), string(message))
+}
+
+func connectToDB() *r.Session {
+	session, err := r.Connect(r.ConnectOpts{
+		Address:  "localhost:28015",
+		Database: "test",
+	})
+	if err != nil {
+		log.Println("1")
+		log.Fatalln(err)
+	}
+	fmt.Println("open OK")
+	return session
+}
+func closeConnectionToDB(session *r.Session) {
+	session.Close()
+	fmt.Println("close OK")
 }
