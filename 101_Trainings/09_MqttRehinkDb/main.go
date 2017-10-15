@@ -13,6 +13,8 @@ import (
 	r "gopkg.in/gorethink/gorethink.v3"
 )
 
+//docker run -d -p 28015:28015 -p 29015:29015 -p 8080:8080 -t cellar.hub.rethinkdb
+
 //SenzorData - class for SenzorData object
 type SenzorData struct {
 	ID          string    `gorethink:"id,omitempty"`
@@ -106,7 +108,7 @@ func main() {
 	// Connect to the MQTT Server.
 	err2 := cli.Connect(&client.ConnectOptions{
 		Network:  "tcp",
-		Address:  "192.168.1.234:1883",
+		Address:  "127.0.0.1:1883",
 		ClientID: []byte("example-client5"),
 	})
 	if err2 != nil {
@@ -230,7 +232,7 @@ func processMessage(topicName, message []byte) {
 			response.Values = append(response.Values, value)
 
 			//***************************
-			fmt.Println("session5")
+			fmt.Println("open session5")
 			session5 := connectToDB()
 			//***************************
 
