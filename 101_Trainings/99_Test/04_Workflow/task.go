@@ -16,7 +16,7 @@ type Task interface {
 	GetName() string
 	SetState(state string)
 	GetState() string
-	Execute() error
+	Execute(channel chan<- string) error
 }
 
 // type baseTask struct {
@@ -28,32 +28,64 @@ type Task interface {
 
 // ParallelTask represents parallel task on workflow.
 type ParallelTask struct {
-	tasks []*Task
+	ID    bson.ObjectId `json:"_id" bson:"_id,omitempty"`
+	Name  string        `json:"name" bson:"name"`
+	State string        `json:"state" bson:"state"`
+	Tasks []Task        `json:"tasks" bson:"tasks"`
 }
 
 // NewParallelTask creates a parallel task by task list.
-func NewParallelTask() *ParallelTask {
-	return &ParallelTask{tasks: make([]*Task, 0)}
+func NewParallelTask(name string) *ParallelTask {
+	return &ParallelTask{
+		Name:  name,
+		State: "new",
+		Tasks: make([]Task, 0),
+	}
 }
 
 // AddTask add parallel task with name
 func (pt *ParallelTask) AddTask(task Task) {
-	pt.tasks = append(pt.tasks, &task)
+	pt.Tasks = append(pt.Tasks, task)
+}
+
+func (t *ParallelTask) SetID(id bson.ObjectId) {
+	t.ID = id
+}
+
+func (t *ParallelTask) GetID() bson.ObjectId {
+	return t.ID
+}
+
+func (t *ParallelTask) SetName(name string) {
+	t.Name = name
+}
+
+func (t *ParallelTask) GetName() string {
+	return t.Name
+}
+
+func (t *ParallelTask) SetState(state string) {
+	t.State = state
+}
+
+func (t *ParallelTask) GetState() string {
+	return t.State
 }
 
 // Execute implement Task.Execute.
-func (pt *ParallelTask) Execute() error {
+func (pt *ParallelTask) Execute(channel chan<- string) error {
+	pt.State = "inprogress"
 	errChan := make(chan error)
 	var wg sync.WaitGroup
 
-	for _, nt := range pt.tasks {
+	for _, nt := range pt.Tasks {
 		wg.Add(1)
 		go func(t Task) {
-			if err := t.Execute(); err != nil {
+			if err := t.Execute(channel); err != nil {
 				errChan <- err
 			}
 			wg.Done()
-		}(*nt)
+		}(nt)
 	}
 
 	resultChan := make(chan error)
@@ -68,5 +100,6 @@ func (pt *ParallelTask) Execute() error {
 	wg.Wait()
 	close(errChan)
 
+	pt.State = "completed"
 	return <-resultChan
 }

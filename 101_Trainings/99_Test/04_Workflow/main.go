@@ -9,20 +9,27 @@ import (
 func main() {
 	fmt.Println("START")
 
+	//*******************************
+	// WORKFLOW
+	//*******************************
 	wf := NewWorkflow("Workflow1")
-	wf.AddTask(&extremeValueCheckTask{})
 
-	// pt := NewParallelTask()
-	// pt.AddTask(&sendEmailTask{})
-	// pt.AddTask(&sendSmsTask{})
-	// pt.AddTask(&twitterPostTask{})
-	// wf.AddTask(pt)
+	task1 := extremeValueCheckTask{Name: "extremeValueCheckTask"}
+	wf.AddTask(&task1)
 
-	// wf.AddTask(&extremeValueCheckTask{})
+	pt := NewParallelTask("ParallelTask1")
+	pt.AddTask(&sendEmailTask{Name: "sendEmailTask"})
+	pt.AddTask(&sendSmsTask{Name: "sendSmsTask"})
+	pt.AddTask(&twitterPostTask{Name: "twitterPostTask"})
+	wf.AddTask(pt)
+
+	wf.AddTask(&sendToDatabase{Name: "sendToDatabase"})
 
 	wf.Run()
 
+	//*******************************
 	//save to the mongodb
+	//*******************************
 	session, err := mgo.Dial("localhost")
 	if err != nil {
 		panic(err)

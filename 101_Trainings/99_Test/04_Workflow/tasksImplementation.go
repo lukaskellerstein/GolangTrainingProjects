@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math/rand"
 	"strconv"
+	"time"
 
 	"gopkg.in/mgo.v2/bson"
 )
@@ -12,45 +13,40 @@ import (
 //TASK - Is there some extreme value ?
 //**********************************
 type extremeValueCheckTask struct {
-	iD    bson.ObjectId `json:"_id" bson:"_id,omitempty"`
-	name  string        `json:"name" bson:"name"`
-	state string        `json:"state" bson:"state"`
+	ID    bson.ObjectId `json:"_id" bson:"_id,omitempty"`
+	Name  string        `json:"name" bson:"name"`
+	State string        `json:"state" bson:"state"`
 	Value string        `json:"value" bson:"value"`
 }
 
 func (t *extremeValueCheckTask) SetID(id bson.ObjectId) {
-	t.iD = id
+	t.ID = id
 }
 
 func (t *extremeValueCheckTask) GetID() bson.ObjectId {
-	return t.iD
+	return t.ID
 }
 
 func (t *extremeValueCheckTask) SetName(name string) {
-	t.name = name
+	t.Name = name
 }
 
 func (t *extremeValueCheckTask) GetName() string {
-	return t.name
+	return t.Name
 }
 
 func (t *extremeValueCheckTask) SetState(state string) {
-	t.state = state
+	t.State = state
 }
 
 func (t *extremeValueCheckTask) GetState() string {
-	return t.state
+	return t.State
 }
 
-func (t *extremeValueCheckTask) Execute() error {
+func (t *extremeValueCheckTask) Execute(channel chan<- string) error {
 	t.SetState("inprogress")
 
-	t.Value = string(rand.Intn(50))
-
-	i, err := strconv.Atoi(t.Value)
-	if err != nil {
-		return err
-	}
+	i := rand.Intn(50)
 
 	if i < 10 {
 		fmt.Println("extremeValueCheckTask = x < 10")
@@ -59,6 +55,11 @@ func (t *extremeValueCheckTask) Execute() error {
 	if i > 30 {
 		fmt.Println("extremeValueCheckTask = x > 30")
 	}
+
+	time.Sleep(2 * time.Second)
+
+	t.Value = strconv.Itoa(i)
+
 	t.SetState("completed")
 	return nil
 }
@@ -67,16 +68,43 @@ func (t *extremeValueCheckTask) Execute() error {
 //TASK - Send email
 //**********************************
 type sendEmailTask struct {
-	// Name  string `json:"name" bson:"name"`
-	// State string `json:"state" bson:"state"`
-
-	Value string `json:"value" bson:"value"`
+	ID    bson.ObjectId `json:"_id" bson:"_id,omitempty"`
+	Name  string        `json:"name" bson:"name"`
+	State string        `json:"state" bson:"state"`
+	Value string        `json:"value" bson:"value"`
 }
 
-func (t *sendEmailTask) Execute() error {
-	// t.State = "inprogress"
+func (t *sendEmailTask) SetID(id bson.ObjectId) {
+	t.ID = id
+}
+
+func (t *sendEmailTask) GetID() bson.ObjectId {
+	return t.ID
+}
+
+func (t *sendEmailTask) SetName(name string) {
+	t.Name = name
+}
+
+func (t *sendEmailTask) GetName() string {
+	return t.Name
+}
+
+func (t *sendEmailTask) SetState(state string) {
+	t.State = state
+}
+
+func (t *sendEmailTask) GetState() string {
+	return t.State
+}
+
+func (t *sendEmailTask) Execute(channel chan<- string) error {
+	t.SetState("inprogress")
+	time.Sleep(2 * time.Second)
+	i := rand.Intn(50)
+	t.Value = strconv.Itoa(i)
 	fmt.Println("sendEmailTask - " + t.Value)
-	// t.State = "completed"
+	t.SetState("completed")
 	return nil
 }
 
@@ -84,16 +112,43 @@ func (t *sendEmailTask) Execute() error {
 //TASK - Send sms
 //**********************************
 type sendSmsTask struct {
-	// Name  string `json:"name" bson:"name"`
-	// State string `json:"state" bson:"state"`
-
-	Value string `json:"value" bson:"value"`
+	ID    bson.ObjectId `json:"_id" bson:"_id,omitempty"`
+	Name  string        `json:"name" bson:"name"`
+	State string        `json:"state" bson:"state"`
+	Value string        `json:"value" bson:"value"`
 }
 
-func (t *sendSmsTask) Execute() error {
-	// t.State = "inprogress"
-	// fmt.Println("sendSmsTask - " + t.Name)
-	// t.State = "completed"
+func (t *sendSmsTask) SetID(id bson.ObjectId) {
+	t.ID = id
+}
+
+func (t *sendSmsTask) GetID() bson.ObjectId {
+	return t.ID
+}
+
+func (t *sendSmsTask) SetName(name string) {
+	t.Name = name
+}
+
+func (t *sendSmsTask) GetName() string {
+	return t.Name
+}
+
+func (t *sendSmsTask) SetState(state string) {
+	t.State = state
+}
+
+func (t *sendSmsTask) GetState() string {
+	return t.State
+}
+
+func (t *sendSmsTask) Execute(channel chan<- string) error {
+	t.SetState("inprogress")
+	time.Sleep(2 * time.Second)
+	i := rand.Intn(50)
+	t.Value = strconv.Itoa(i)
+	fmt.Println("sendSmsTask - " + t.Value)
+	t.SetState("completed")
 	return nil
 }
 
@@ -101,16 +156,43 @@ func (t *sendSmsTask) Execute() error {
 //TASK - Send Twitter post
 //**********************************
 type twitterPostTask struct {
-	// Name  string `json:"name" bson:"name"`
-	// State string `json:"state" bson:"state"`
-
-	Value string `json:"value" bson:"value"`
+	ID    bson.ObjectId `json:"_id" bson:"_id,omitempty"`
+	Name  string        `json:"name" bson:"name"`
+	State string        `json:"state" bson:"state"`
+	Value string        `json:"value" bson:"value"`
 }
 
-func (t *twitterPostTask) Execute() error {
-	// t.State = "inprogress"
-	// fmt.Println("twitterPostTask - " + t.Name)
-	// t.State = "completed"
+func (t *twitterPostTask) SetID(id bson.ObjectId) {
+	t.ID = id
+}
+
+func (t *twitterPostTask) GetID() bson.ObjectId {
+	return t.ID
+}
+
+func (t *twitterPostTask) SetName(name string) {
+	t.Name = name
+}
+
+func (t *twitterPostTask) GetName() string {
+	return t.Name
+}
+
+func (t *twitterPostTask) SetState(state string) {
+	t.State = state
+}
+
+func (t *twitterPostTask) GetState() string {
+	return t.State
+}
+
+func (t *twitterPostTask) Execute(channel chan<- string) error {
+	t.SetState("inprogress")
+	time.Sleep(2 * time.Second)
+	i := rand.Intn(50)
+	t.Value = strconv.Itoa(i)
+	fmt.Println("twitterPostTask - " + t.Value)
+	t.SetState("completed")
 	return nil
 }
 
@@ -118,15 +200,42 @@ func (t *twitterPostTask) Execute() error {
 //TASK - Save to the Database
 //**********************************
 type sendToDatabase struct {
-	// Name  string `json:"name" bson:"name"`
-	// State string `json:"state" bson:"state"`
-
-	Value string `json:"value" bson:"value"`
+	ID    bson.ObjectId `json:"_id" bson:"_id,omitempty"`
+	Name  string        `json:"name" bson:"name"`
+	State string        `json:"state" bson:"state"`
+	Value string        `json:"value" bson:"value"`
 }
 
-func (t *sendToDatabase) Execute() error {
-	// t.State = "inprogress"
-	// fmt.Println("sendToDatabase - " + t.Name)
-	// t.State = "completed"
+func (t *sendToDatabase) SetID(id bson.ObjectId) {
+	t.ID = id
+}
+
+func (t *sendToDatabase) GetID() bson.ObjectId {
+	return t.ID
+}
+
+func (t *sendToDatabase) SetName(name string) {
+	t.Name = name
+}
+
+func (t *sendToDatabase) GetName() string {
+	return t.Name
+}
+
+func (t *sendToDatabase) SetState(state string) {
+	t.State = state
+}
+
+func (t *sendToDatabase) GetState() string {
+	return t.State
+}
+
+func (t *sendToDatabase) Execute(channel chan<- string) error {
+	t.SetState("inprogress")
+	time.Sleep(2 * time.Second)
+	i := rand.Intn(50)
+	t.Value = strconv.Itoa(i)
+	fmt.Println("sendToDatabase - " + t.Value)
+	t.SetState("completed")
 	return nil
 }
