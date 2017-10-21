@@ -48,17 +48,22 @@ func (t *extremeValueCheckTask) Execute(channel chan<- string) error {
 
 	i := rand.Intn(50)
 
-	if i < 10 {
-		fmt.Println("extremeValueCheckTask = x < 10")
-	}
+	// if i < 10 {
+	// 	fmt.Println("extremeValueCheckTask = x < 10")
+	// }
 
-	if i > 30 {
-		fmt.Println("extremeValueCheckTask = x > 30")
-	}
+	// if i > 30 {
+	// 	fmt.Println("extremeValueCheckTask = x > 30")
+	// }
 
-	time.Sleep(2 * time.Second)
+	//****************************************
+	time.Sleep(1 * time.Second)
+	//****************************************
 
 	t.Value = strconv.Itoa(i)
+
+	channel <- "extremeValueCheckTask" + t.Value
+	fmt.Println("extremeValueCheckTask - " + t.Value)
 
 	t.SetState("completed")
 	return nil
@@ -100,9 +105,12 @@ func (t *sendEmailTask) GetState() string {
 
 func (t *sendEmailTask) Execute(channel chan<- string) error {
 	t.SetState("inprogress")
+	//****************************************
 	time.Sleep(2 * time.Second)
+	//****************************************
 	i := rand.Intn(50)
 	t.Value = strconv.Itoa(i)
+	channel <- "sendEmailTask" + t.Value
 	fmt.Println("sendEmailTask - " + t.Value)
 	t.SetState("completed")
 	return nil
@@ -144,9 +152,12 @@ func (t *sendSmsTask) GetState() string {
 
 func (t *sendSmsTask) Execute(channel chan<- string) error {
 	t.SetState("inprogress")
+	//****************************************
 	time.Sleep(2 * time.Second)
+	//****************************************
 	i := rand.Intn(50)
 	t.Value = strconv.Itoa(i)
+	channel <- "sendSmsTask" + t.Value
 	fmt.Println("sendSmsTask - " + t.Value)
 	t.SetState("completed")
 	return nil
@@ -188,9 +199,12 @@ func (t *twitterPostTask) GetState() string {
 
 func (t *twitterPostTask) Execute(channel chan<- string) error {
 	t.SetState("inprogress")
+	//****************************************
 	time.Sleep(2 * time.Second)
+	//****************************************
 	i := rand.Intn(50)
 	t.Value = strconv.Itoa(i)
+	channel <- "twitterPostTask" + t.Value
 	fmt.Println("twitterPostTask - " + t.Value)
 	t.SetState("completed")
 	return nil
@@ -232,9 +246,12 @@ func (t *sendToDatabase) GetState() string {
 
 func (t *sendToDatabase) Execute(channel chan<- string) error {
 	t.SetState("inprogress")
-	time.Sleep(2 * time.Second)
+	//****************************************
+	time.Sleep(3 * time.Second)
+	//****************************************
 	i := rand.Intn(50)
 	t.Value = strconv.Itoa(i)
+	channel <- "sendToDatabase" + t.Value
 	fmt.Println("sendToDatabase - " + t.Value)
 	t.SetState("completed")
 	return nil
