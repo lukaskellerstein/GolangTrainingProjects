@@ -10,6 +10,7 @@ func main() {
 	temp1 := 42
 	temp2 := temp1  //only copy a value
 	temp3 := &temp1 //copy memory address
+	//temp4 := *temp1 //cant write this way
 
 	fmt.Println(temp1)
 	fmt.Println(temp2)
