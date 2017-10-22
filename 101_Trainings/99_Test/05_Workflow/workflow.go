@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"sync"
 
 	"gopkg.in/mgo.v2/bson"
 )
@@ -39,16 +38,16 @@ func (wf *Workflow) run(tasks []Task) error {
 
 	// myChan := make(chan string)
 	// errChan := make(chan error)
-	var wg sync.WaitGroup
+	//var wg sync.WaitGroup
 
 	for _, nt := range tasks {
-		wg.Add(1)
+		//wg.Add(1)
 
 		fmt.Println("workflow: Start task: " + nt.GetName())
 
 		go func(t Task) {
 			t.Execute()
-			wg.Done()
+			//wg.Done()
 		}(nt)
 
 		fmt.Println("workflow: Run task: " + nt.GetName())
@@ -76,9 +75,9 @@ func (wf *Workflow) run(tasks []Task) error {
 	// 	fmt.Println(message)
 	// }
 
-	go func() {
-		wg.Wait()
-	}()
+	// go func() {
+	// 	wg.Wait()
+	// }()
 
 	wf.State = "completed"
 	return nil
