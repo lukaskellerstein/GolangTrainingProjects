@@ -28,18 +28,22 @@ type Task interface {
 
 // ParallelTask represents parallel task on workflow.
 type ParallelTask struct {
-	ID    bson.ObjectId `json:"_id" bson:"_id,omitempty"`
-	Name  string        `json:"name" bson:"name"`
-	State string        `json:"state" bson:"state"`
-	Tasks []Task        `json:"tasks" bson:"tasks"`
+	ID         bson.ObjectId `json:"_id" bson:"_id,omitempty"`
+	Name       string        `json:"name" bson:"name"`
+	State      string        `json:"state" bson:"state"`
+	Tasks      []Task        `json:"tasks" bson:"tasks"`
+	inChannel  chan string
+	outChannel chan string
 }
 
 // NewParallelTask creates a parallel task by task list.
-func NewParallelTask(name string) *ParallelTask {
+func NewParallelTask(name string, inchannel chan string, outchannel chan string) *ParallelTask {
 	return &ParallelTask{
-		Name:  name,
-		State: "new",
-		Tasks: make([]Task, 0),
+		Name:       name,
+		State:      "new",
+		Tasks:      make([]Task, 0),
+		inChannel:  inchannel,
+		outChannel: outchannel,
 	}
 }
 

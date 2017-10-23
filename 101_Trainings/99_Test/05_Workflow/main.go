@@ -95,6 +95,8 @@ func processMessage(topicName, message []byte) {
 	go func() {
 		wf := NewWorkflow("Workflow1")
 
+		// PIPELINE ------------------
+
 		ch1out := make(chan string)
 		wf.AddTask(&extremeValueCheckTask{Name: "extremeValueCheckTask", inChannel: workflowIn, outChannel: ch1out})
 
@@ -108,6 +110,8 @@ func processMessage(topicName, message []byte) {
 		wf.AddTask(&twitterPostTask{Name: "twitterPostTask", inChannel: ch3out, outChannel: ch4out})
 
 		wf.AddTask(&sendToDatabase{Name: "sendToDatabase", inChannel: ch4out, outChannel: workflowOut})
+
+		// ---------------------------
 
 		wf.Run()
 	}()
