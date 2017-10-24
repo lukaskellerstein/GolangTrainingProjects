@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"time"
 
 	"gopkg.in/mgo.v2"
 	"gopkg.in/mgo.v2/bson"
@@ -12,32 +13,16 @@ import (
 //TASK - Human Task
 //**********************************
 type someHumanTask struct {
-	ID         bson.ObjectId `json:"_id" bson:"_id,omitempty"`
-	Name       string        `json:"name" bson:"name"`
-	State      string        `json:"state" bson:"state"`
-	Value      string        `json:"value" bson:"value"`
-	inChannel  chan string
-	outChannel chan string
+	BaseTask
 }
 
 func NewHumanTask(name string) *someHumanTask {
 	ht := &someHumanTask{
-		ID:    bson.NewObjectId(),
-		Name:  name,
-		State: "new",
-	}
-
-	session, err := mgo.Dial("localhost")
-	if err != nil {
-		panic(err)
-	}
-	defer session.Close()
-
-	//SELECT TABLE
-	humanTasksTable := session.DB("test").C("humanTasks")
-
-	//INSERT
-	err = humanTasksTable.Insert(ht)
+		BaseTask{
+			ID:    bson.NewObjectId(),
+			Name:  name,
+			State: "new",
+		}}
 
 	return ht
 }
@@ -124,28 +109,15 @@ func (t *someHumanTask) Execute() error {
 	for value := range t.inChannel {
 		t.SetState("inprogress")
 
-		session, err := mgo.Dial("localhost")
-		if err != nil {
-			panic(err)
-		}
-		defer session.Close()
+		result := GetHumanTaskState(t)
 
-		//SELECT TABLE
-		humanTasksTable := session.DB("test").C("humanTasks")
-
-		//CHECK IF STATE IS DONE
-		result := someHumanTask{}
-		err = humanTasksTable.Find(bson.M{"_id": t.ID}).One(&result)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		if result.State == "done" {
+		if result == "done" {
 			fmt.Println("someHumanTask - " + t.Value)
 			t.outChannel <- value
 		}
 	}
 
+	//SEM SE TO NEDOSTANE ???
 	fmt.Println("someHumanTask2")
 
 	t.SetState("completed")
@@ -156,12 +128,58 @@ func (t *someHumanTask) Execute() error {
 //TASK - Is there some extreme value ?
 //**********************************
 type extremeValueCheckTask struct {
-	ID         bson.ObjectId `json:"_id" bson:"_id,omitempty"`
-	Name       string        `json:"name" bson:"name"`
-	State      string        `json:"state" bson:"state"`
-	Value      string        `json:"value" bson:"value"`
-	inChannel  chan string
-	outChannel chan string
+	BaseTask
+}
+
+// func GetTask(t *extremeValueCheckTask) *extremeValueCheckTask {
+
+// 	session, err := mgo.Dial("localhost")
+// 	if err != nil {
+// 		panic(err)
+// 	}
+// 	defer session.Close()
+
+// 	//SELECT TABLE
+// 	humanTasksTable := session.DB("test").C("humanTasks")
+
+// 	//CHECK IF STATE IS DONE
+// 	result := extremeValueCheckTask{}
+// 	err = humanTasksTable.Find(bson.M{"_id": t.ID}).One(&result)
+// 	if err != nil {
+// 		log.Fatal(err)
+// 	}
+
+// 	return &result
+// }
+
+func UpdateTask(t *extremeValueCheckTask) {
+	session, err := mgo.Dial("localhost")
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+
+	//SELECT TABLE
+	workflowsTable := session.DB("test").C("workflows")
+
+	// Update
+	colQuerier := bson.M{"tasks.name": "Senzor1"}
+	change := bson.M{"$set": bson.M{"date": time.Now()}}
+
+	err = workflowsTable.Update(colQuerier, change)
+	if err != nil {
+		panic(err)
+	}
+
+	//SELECT TABLE
+	humanTasksTable := session.DB("test").C("humanTasks")
+
+	//CHECK IF STATE IS DONE
+	result := extremeValueCheckTask{}
+	err = humanTasksTable.Find(bson.M{"_id": t.ID}).One(&result)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func (t *extremeValueCheckTask) SetID(id bson.ObjectId) {
@@ -193,14 +211,35 @@ func (t *extremeValueCheckTask) Execute() error {
 	fmt.Println("extremeValueCheckTask1")
 
 	for value := range t.inChannel {
+
+		if t.State == "new" {
+			t.SetState("inprogress")
+		}
+
 		t.SetState("inprogress")
 		t.Value = value
+
+		// //SELECT TABLE
+		// humanTasksTable := session.DB("test").C("humanTasks")
+
+		// //CHECK IF STATE IS DONE
+		// result := someHumanTask{}
+		// err = humanTasksTable.Find(bson.M{"_id": t.ID}).One(&result)
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+
+		// if result.State == "done" {
+		// 	fmt.Println("someHumanTask - " + t.Value)
+		// 	t.outChannel <- value
+		// }
+
 		fmt.Println("extremeValueCheckTask - " + t.Value)
 
 		t.outChannel <- value
 	}
 
-	//SEM SE TO NEDOSTANE
+	//SEM SE TO NEDOSTANE ??? vim proc
 	fmt.Println("extremeValueCheckTask2")
 
 	//wg.Done()
@@ -212,12 +251,7 @@ func (t *extremeValueCheckTask) Execute() error {
 //TASK - Send email
 //**********************************
 type sendEmailTask struct {
-	ID         bson.ObjectId `json:"_id" bson:"_id,omitempty"`
-	Name       string        `json:"name" bson:"name"`
-	State      string        `json:"state" bson:"state"`
-	Value      string        `json:"value" bson:"value"`
-	inChannel  chan string
-	outChannel chan string
+	BaseTask
 }
 
 func (t *sendEmailTask) SetID(id bson.ObjectId) {
@@ -255,7 +289,7 @@ func (t *sendEmailTask) Execute() error {
 		t.outChannel <- value
 	}
 
-	//SEM SE TO NEDOSTANE
+	//SEM SE TO NEDOSTANE ???
 	fmt.Println("sendEmailTask2")
 
 	t.SetState("completed")
@@ -266,12 +300,7 @@ func (t *sendEmailTask) Execute() error {
 //TASK - Send sms
 //**********************************
 type sendSmsTask struct {
-	ID         bson.ObjectId `json:"_id" bson:"_id,omitempty"`
-	Name       string        `json:"name" bson:"name"`
-	State      string        `json:"state" bson:"state"`
-	Value      string        `json:"value" bson:"value"`
-	inChannel  chan string
-	outChannel chan string
+	BaseTask
 }
 
 func (t *sendSmsTask) SetID(id bson.ObjectId) {
@@ -309,6 +338,7 @@ func (t *sendSmsTask) Execute() error {
 		t.outChannel <- value
 	}
 
+	//SEM SE TO NEDOSTANE ???
 	fmt.Println("sendSmsTask2")
 
 	t.SetState("completed")
@@ -319,12 +349,7 @@ func (t *sendSmsTask) Execute() error {
 //TASK - Send Twitter post
 //**********************************
 type twitterPostTask struct {
-	ID         bson.ObjectId `json:"_id" bson:"_id,omitempty"`
-	Name       string        `json:"name" bson:"name"`
-	State      string        `json:"state" bson:"state"`
-	Value      string        `json:"value" bson:"value"`
-	inChannel  chan string
-	outChannel chan string
+	BaseTask
 }
 
 func (t *twitterPostTask) SetID(id bson.ObjectId) {
@@ -362,7 +387,9 @@ func (t *twitterPostTask) Execute() error {
 		t.outChannel <- value
 	}
 
+	//SEM SE TO NEDOSTANE ???
 	fmt.Println("twitterPostTask2")
+
 	t.SetState("completed")
 	return nil
 }
@@ -371,12 +398,7 @@ func (t *twitterPostTask) Execute() error {
 //TASK - Save to the Database
 //**********************************
 type sendToDatabase struct {
-	ID         bson.ObjectId `json:"_id" bson:"_id,omitempty"`
-	Name       string        `json:"name" bson:"name"`
-	State      string        `json:"state" bson:"state"`
-	Value      string        `json:"value" bson:"value"`
-	inChannel  chan string
-	outChannel chan string
+	BaseTask
 }
 
 func (t *sendToDatabase) SetID(id bson.ObjectId) {
@@ -414,7 +436,9 @@ func (t *sendToDatabase) Execute() error {
 		t.outChannel <- value
 	}
 
+	//SEM SE TO NEDOSTANE ???
 	fmt.Println("sendToDatabase2")
+
 	t.SetState("completed")
 	return nil
 }
