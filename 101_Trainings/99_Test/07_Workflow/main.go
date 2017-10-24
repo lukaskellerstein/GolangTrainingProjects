@@ -101,7 +101,7 @@ func processMessage(topicName, message []byte) {
 		ch2out := make(chan string)
 		ch3out := make(chan string)
 		ch4out := make(chan string)
-		var chas [3]chan string
+		chas := make([]chan string, 3)
 		chas[0] = ch2out
 		chas[1] = ch3out
 		chas[2] = ch4out

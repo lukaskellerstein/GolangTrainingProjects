@@ -22,10 +22,10 @@ type DecisionTask struct {
 	Name        string        `json:"name" bson:"name"`
 	State       string        `json:"state" bson:"state"`
 	inChannel   chan string
-	outChannels [3]chan string
+	outChannels []chan string
 }
 
-func NewDecisionTask(name string, inchannel chan string, outChannels [3]chan string) *DecisionTask {
+func NewDecisionTask(name string, inchannel chan string, outChannels []chan string) *DecisionTask {
 	return &DecisionTask{
 		Name:        name,
 		State:       "new",
