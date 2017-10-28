@@ -18,6 +18,7 @@ type Task interface {
 type BaseTask struct {
 	ID         bson.ObjectId `json:"_id" bson:"_id,omitempty"`
 	Name       string        `json:"name" bson:"name"`
+	Type       string        `json:"type" bson:"type"`
 	State      string        `json:"state" bson:"state"`
 	Value      string        `json:"value" bson:"value"`
 	inChannel  chan string
@@ -30,10 +31,14 @@ func (t *BaseTask) Execute() error {
 	return nil
 }
 
+//*********************************************
+// Base Parallel Task
 // BaseParallelTask represents parallel task on workflow.
+//*********************************************
 type BaseParallelTask struct {
 	ID         bson.ObjectId `json:"_id" bson:"_id,omitempty"`
 	Name       string        `json:"name" bson:"name"`
+	Type       string        `json:"type" bson:"type"`
 	State      string        `json:"state" bson:"state"`
 	Tasks      []interface{} `json:"tasks" bson:"tasks"`
 	inChannel  chan string
@@ -45,6 +50,7 @@ func NewParallelTask(name string, inchannel chan string, outchannel chan string)
 	return &BaseParallelTask{
 		Name:       name,
 		State:      "new",
+		Type:       "BaseParallelTask",
 		Tasks:      make([]interface{}, 0),
 		inChannel:  inchannel,
 		outChannel: outchannel,
@@ -162,7 +168,10 @@ func (pt *BaseParallelTask) ExecuteParallel(value string) error {
 	return nil
 }
 
-type DecisionTask struct {
+//*********************************************
+// Base Decision Task
+//*********************************************
+type BaseDecisionTask struct {
 	ID          bson.ObjectId `json:"_id" bson:"_id,omitempty"`
 	Name        string        `json:"name" bson:"name"`
 	State       string        `json:"state" bson:"state"`
@@ -170,8 +179,8 @@ type DecisionTask struct {
 	outChannels []chan string
 }
 
-func NewDecisionTask(name string, inchannel chan string, outChannels []chan string) *DecisionTask {
-	return &DecisionTask{
+func NewDecisionTask(name string, inchannel chan string, outChannels []chan string) *BaseDecisionTask {
+	return &BaseDecisionTask{
 		Name:        name,
 		State:       "new",
 		inChannel:   inchannel,
@@ -180,7 +189,7 @@ func NewDecisionTask(name string, inchannel chan string, outChannels []chan stri
 }
 
 // Execute implement Task.Execute.
-func (t *DecisionTask) Execute() error {
+func (t *BaseDecisionTask) Execute() error {
 	t.State = "inprogress"
 
 	for value := range t.inChannel {
@@ -201,7 +210,7 @@ func (t *DecisionTask) Execute() error {
 	return nil
 }
 
-func (t *DecisionTask) ExecuteParallel(value string) error {
+func (t *BaseDecisionTask) ExecuteParallel(value string) error {
 	//nothing here
 	return nil
 }

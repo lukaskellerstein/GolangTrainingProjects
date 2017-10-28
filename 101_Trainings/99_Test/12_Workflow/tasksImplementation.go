@@ -22,6 +22,7 @@ func NewHumanTask(name string) *someHumanTask {
 			ID:         bson.NewObjectId(),
 			Name:       name,
 			State:      "new",
+			Type:       "someHumanTask",
 			Value:      "",
 			inChannel:  nil,
 			outChannel: nil,

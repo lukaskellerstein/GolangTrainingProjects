@@ -92,14 +92,14 @@ func main() {
 
 			//normal task
 			ch1out := make(chan string)
-			wf.AddTask(&extremeValueCheckTask{BaseTask: BaseTask{Name: "extremeValueCheckTask", State: "new", ID: bson.NewObjectId(), inChannel: workflowIn, outChannel: ch1out}, MinValue: "10", MaxValue: "20"})
+			wf.AddTask(&extremeValueCheckTask{BaseTask: BaseTask{Type: "extremeValueCheckTask", Name: "myTask1", State: "new", ID: bson.NewObjectId(), inChannel: workflowIn, outChannel: ch1out}, MinValue: "10", MaxValue: "20"})
 
 			//parallel task
 			ch2out := make(chan string)
 			pt := NewParallelTask("Parallel1", ch1out, ch2out)
-			pt.AddTask(&sendEmailTask{BaseTask: BaseTask{Name: "sendEmailTask", State: "new", ID: bson.NewObjectId()}, EmailAddress: "someuser@gmail.com"})
-			pt.AddTask(&sendSmsTask{BaseTask{Name: "sendSmsTask", State: "new", ID: bson.NewObjectId()}})
-			pt.AddTask(&twitterPostTask{BaseTask{Name: "twitterPostTask", State: "new", ID: bson.NewObjectId()}})
+			pt.AddTask(&sendEmailTask{BaseTask: BaseTask{Type: "sendEmailTask", Name: "myTask2", State: "new", ID: bson.NewObjectId()}, EmailAddress: "someuser@gmail.com"})
+			pt.AddTask(&sendSmsTask{BaseTask{Type: "sendSmsTask", Name: "myTask3", State: "new", ID: bson.NewObjectId()}})
+			pt.AddTask(&twitterPostTask{BaseTask{Type: "twitterPostTask", Name: "myTask4", State: "new", ID: bson.NewObjectId()}})
 			wf.AddTask(pt)
 
 			//human task
@@ -110,6 +110,15 @@ func main() {
 			ht.inChannel = ch2out
 			ht.outChannel = ch3out
 			wf.AddTask(ht)
+
+			//decision task
+			chas := make([]chan string, 3)
+			chas[0] = ch2out
+			chas[1] = ch3out
+			chas[2] = ch4out
+
+			pt := NewDecisionTask("Decision1", ch1out, chas)
+			wf.AddTask(pt)
 
 			wf.AddTask(&sendToDatabase{BaseTask: BaseTask{Name: "sendToDatabase", inChannel: ch3out, outChannel: workflowOut}, DatabaseName: "testDatabase"})
 
@@ -175,7 +184,7 @@ func main() {
 				fmt.Println(asdf)
 
 				//COCNRETE TASK
-				if asdf.Name == "extremeValueCheckTask" {
+				if asdf.Type == "extremeValueCheckTask" {
 					asdf2 := extremeValueCheckTask{BaseTask: asdf}
 					bodyBytes, _ := json.Marshal(concreteTaskVariable)
 					json.Unmarshal(bodyBytes, &asdf2)
@@ -185,7 +194,7 @@ func main() {
 					fmt.Println(asdf2.Name)
 					fmt.Println(asdf2.MinValue)
 					fmt.Println(asdf2.MaxValue)
-				} else if asdf.Name == "someHumanTask" {
+				} else if asdf.Type == "someHumanTask" {
 					asdf2 := someHumanTask{BaseTask: asdf}
 					bodyBytes, _ := json.Marshal(concreteTaskVariable)
 					json.Unmarshal(bodyBytes, &asdf2)
@@ -195,7 +204,7 @@ func main() {
 					fmt.Println(asdf2.Name)
 					fmt.Println(asdf2.UserID)
 					fmt.Println(asdf2.ResolvedTime)
-				} else if asdf.Name == "sendEmailTask" {
+				} else if asdf.Type == "sendEmailTask" {
 					asdf2 := sendEmailTask{BaseTask: asdf}
 					bodyBytes, _ := json.Marshal(concreteTaskVariable)
 					json.Unmarshal(bodyBytes, &asdf2)
@@ -204,7 +213,7 @@ func main() {
 					fmt.Println(asdf2.ID)
 					fmt.Println(asdf2.Name)
 					fmt.Println(asdf2.EmailAddress)
-				} else if asdf.Name == "sendSmsTask" {
+				} else if asdf.Type == "sendSmsTask" {
 					asdf2 := sendSmsTask{BaseTask: asdf}
 					bodyBytes, _ := json.Marshal(concreteTaskVariable)
 					json.Unmarshal(bodyBytes, &asdf2)
@@ -212,7 +221,7 @@ func main() {
 					fmt.Println(asdf2)
 					fmt.Println(asdf2.ID)
 					fmt.Println(asdf2.Name)
-				} else if asdf.Name == "twitterPostTask" {
+				} else if asdf.Type == "twitterPostTask" {
 					asdf2 := twitterPostTask{BaseTask: asdf}
 					bodyBytes, _ := json.Marshal(concreteTaskVariable)
 					json.Unmarshal(bodyBytes, &asdf2)
@@ -220,7 +229,7 @@ func main() {
 					fmt.Println(asdf2)
 					fmt.Println(asdf2.ID)
 					fmt.Println(asdf2.Name)
-				} else if asdf.Name == "sendToDatabase" {
+				} else if asdf.Type == "sendToDatabase" {
 					asdf2 := sendToDatabase{BaseTask: asdf}
 					bodyBytes, _ := json.Marshal(concreteTaskVariable)
 					json.Unmarshal(bodyBytes, &asdf2)
