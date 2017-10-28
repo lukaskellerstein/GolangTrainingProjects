@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 
 	"gopkg.in/mgo.v2"
@@ -104,49 +103,55 @@ func (wf *Workflow) run(tasks []interface{}) error {
 
 		switch nttype := nt.(type) {
 		case *BaseParallelTask:
-			fmt.Println("BaseParallelTask - ", nttype)
+			// fmt.Println("BaseParallelTask - ", nttype)
+			// RUN IT in separate goroutine
+			go func(t Task) {
+				t.Execute()
+			}(nttype)
+		case *BaseDecisionTask:
+			// fmt.Println("BaseDecisionTask - ", nttype)
 			// RUN IT in separate goroutine
 			go func(t Task) {
 				t.Execute()
 			}(nttype)
 		case *someHumanTask:
-			fmt.Println("someHumanTask - ", nttype)
+			// fmt.Println("someHumanTask - ", nttype)
 			// RUN IT in separate goroutine
 			go func(t Task) {
 				t.Execute()
 			}(nttype)
 		case *extremeValueCheckTask:
-			fmt.Println("extremeValueCheckTask -", nttype)
+			// fmt.Println("extremeValueCheckTask -", nttype)
 			// RUN IT in separate goroutine
 			go func(t Task) {
 				t.Execute()
 			}(nttype)
 		case *sendEmailTask:
-			fmt.Println("sendEmailTask -", nttype)
+			// fmt.Println("sendEmailTask -", nttype)
 			// RUN IT in separate goroutine
 			go func(t Task) {
 				t.Execute()
 			}(nttype)
 		case *sendSmsTask:
-			fmt.Println("sendSmsTask -", nttype)
+			// fmt.Println("sendSmsTask -", nttype)
 			// RUN IT in separate goroutine
 			go func(t Task) {
 				t.Execute()
 			}(nttype)
 		case *twitterPostTask:
-			fmt.Println("twitterPostTask -", nttype)
+			// fmt.Println("twitterPostTask -", nttype)
 			// RUN IT in separate goroutine
 			go func(t Task) {
 				t.Execute()
 			}(nttype)
 		case *sendToDatabase:
-			fmt.Println("sendToDatabase -", nttype)
+			// fmt.Println("sendToDatabase -", nttype)
 			// RUN IT in separate goroutine
 			go func(t Task) {
 				t.Execute()
 			}(nttype)
 		default:
-			fmt.Println("----default-----", nttype)
+			// fmt.Println("----default-----", nttype)
 			// fmt.Println(nttype)
 		}
 

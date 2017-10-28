@@ -64,6 +64,8 @@ func (pt *BaseParallelTask) AddTask(task interface{}) {
 
 // Execute implement Task.Execute.
 func (pt *BaseParallelTask) Execute() error {
+	fmt.Println("BaseParallelTask execute")
+
 	pt.State = "inprogress"
 
 	resultChan := make(chan error)
@@ -175,6 +177,7 @@ type BaseDecisionTask struct {
 	ID          bson.ObjectId `json:"_id" bson:"_id,omitempty"`
 	Name        string        `json:"name" bson:"name"`
 	State       string        `json:"state" bson:"state"`
+	Type        string        `json:"type" bson:"type"`
 	inChannel   chan string
 	outChannels []chan string
 }
@@ -183,6 +186,7 @@ func NewDecisionTask(name string, inchannel chan string, outChannels []chan stri
 	return &BaseDecisionTask{
 		Name:        name,
 		State:       "new",
+		Type:        "BaseDecisionTask",
 		inChannel:   inchannel,
 		outChannels: outChannels,
 	}
@@ -190,6 +194,8 @@ func NewDecisionTask(name string, inchannel chan string, outChannels []chan stri
 
 // Execute implement Task.Execute.
 func (t *BaseDecisionTask) Execute() error {
+	fmt.Println("BaseDecisionTask execute")
+
 	t.State = "inprogress"
 
 	for value := range t.inChannel {

@@ -87,7 +87,7 @@ func GetHumanTaskState(ht *someHumanTask) string {
 
 func (t *someHumanTask) Execute() error {
 
-	fmt.Println("someHumanTask1")
+	fmt.Println("someHumanTask execute")
 
 	for value := range t.inChannel {
 		t.State = "inprogress"
@@ -95,7 +95,7 @@ func (t *someHumanTask) Execute() error {
 		result := GetHumanTaskState(t)
 
 		if result == "done" {
-			fmt.Println("someHumanTask - " + t.Value)
+			fmt.Println("someHumanTask value - " + t.Value)
 			t.outChannel <- value
 		}
 	}
@@ -110,7 +110,7 @@ func (t *someHumanTask) Execute() error {
 func (t *someHumanTask) ExecuteParallel(value string) error {
 	t.State = "inprogress"
 	t.Value = value
-	fmt.Println("someHumanTask - " + t.Value)
+	fmt.Println("someHumanTask parallel value - " + t.Value)
 	t.State = "completed"
 	return nil
 }
@@ -156,7 +156,7 @@ type extremeValueCheckTask struct {
 
 func (t *extremeValueCheckTask) Execute() error {
 
-	fmt.Println("extremeValueCheckTask1")
+	fmt.Println("extremeValueCheckTask execute")
 
 	for value := range t.inChannel {
 
@@ -182,7 +182,7 @@ func (t *extremeValueCheckTask) Execute() error {
 		// 	t.outChannel <- value
 		// }
 
-		fmt.Println("extremeValueCheckTask - " + t.Value)
+		fmt.Println("extremeValueCheckTask value - " + t.Value)
 
 		t.outChannel <- value
 	}
@@ -198,7 +198,7 @@ func (t *extremeValueCheckTask) Execute() error {
 func (t *extremeValueCheckTask) ExecuteParallel(value string) error {
 	t.State = "inprogress"
 	t.Value = value
-	fmt.Println("extremeValueCheckTask - " + t.Value)
+	fmt.Println("extremeValueCheckTask parallel value - " + t.Value)
 	t.State = "completed"
 	return nil
 }
@@ -212,12 +212,12 @@ type sendEmailTask struct {
 }
 
 func (t *sendEmailTask) Execute() error {
-	fmt.Println("sendEmailTask1")
+	fmt.Println("sendEmailTask execute")
 
 	for value := range t.inChannel {
 		t.State = "inprogress"
 		t.Value = value
-		fmt.Println("sendEmailTask - " + t.Value)
+		fmt.Println("sendEmailTask value - " + t.Value)
 
 		t.outChannel <- value
 	}
@@ -232,7 +232,7 @@ func (t *sendEmailTask) Execute() error {
 func (t *sendEmailTask) ExecuteParallel(value string) error {
 	t.State = "inprogress"
 	t.Value = value
-	fmt.Println("sendEmailTask - " + t.Value)
+	fmt.Println("sendEmailTask parallel value - " + t.Value)
 	t.State = "completed"
 	return nil
 }
@@ -245,12 +245,12 @@ type sendSmsTask struct {
 }
 
 func (t *sendSmsTask) Execute() error {
-	fmt.Println("sendSmsTask1")
+	fmt.Println("sendSmsTask execute")
 
 	for value := range t.inChannel {
 		t.State = "inprogress"
 		t.Value = value
-		fmt.Println("sendSmsTask - " + t.Value)
+		fmt.Println("sendSmsTask value - " + t.Value)
 
 		t.outChannel <- value
 	}
@@ -265,7 +265,7 @@ func (t *sendSmsTask) Execute() error {
 func (t *sendSmsTask) ExecuteParallel(value string) error {
 	t.State = "inprogress"
 	t.Value = value
-	fmt.Println("sendSmsTask - " + t.Value)
+	fmt.Println("sendSmsTask parallel value - " + t.Value)
 	t.State = "completed"
 	return nil
 }
@@ -278,12 +278,12 @@ type twitterPostTask struct {
 }
 
 func (t *twitterPostTask) Execute() error {
-	fmt.Println("twitterPostTask1")
+	fmt.Println("twitterPostTask execute")
 
 	for value := range t.inChannel {
 		t.State = "inprogress"
 		t.Value = value
-		fmt.Println("twitterPostTask - " + t.Value)
+		fmt.Println("twitterPostTask value - " + t.Value)
 
 		t.outChannel <- value
 	}
@@ -298,7 +298,7 @@ func (t *twitterPostTask) Execute() error {
 func (t *twitterPostTask) ExecuteParallel(value string) error {
 	t.State = "inprogress"
 	t.Value = value
-	fmt.Println("twitterPostTask - " + t.Value)
+	fmt.Println("twitterPostTask parallel value - " + t.Value)
 	t.State = "completed"
 	return nil
 }
@@ -312,12 +312,12 @@ type sendToDatabase struct {
 }
 
 func (t *sendToDatabase) Execute() error {
-	fmt.Println("sendToDatabase1")
+	fmt.Println("sendToDatabase execute")
 
 	for value := range t.inChannel {
 		t.State = "inprogress"
 		t.Value = value
-		fmt.Println("sendToDatabase - " + t.Value)
+		fmt.Println("sendToDatabase value - " + t.Value)
 
 		t.outChannel <- value
 	}
@@ -332,7 +332,7 @@ func (t *sendToDatabase) Execute() error {
 func (t *sendToDatabase) ExecuteParallel(value string) error {
 	t.State = "inprogress"
 	t.Value = value
-	fmt.Println("sendToDatabase - " + t.Value)
+	fmt.Println("sendToDatabase parallel value - " + t.Value)
 	t.State = "completed"
 	return nil
 }
