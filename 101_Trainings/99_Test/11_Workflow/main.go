@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -90,10 +91,10 @@ func main() {
 			// PIPELINE ------------------
 
 			ch1out := make(chan string)
-			wf.AddTask(&extremeValueCheckTask{BaseTask{Name: "extremeValueCheckTask", State: "new", ID: bson.NewObjectId(), inChannel: workflowIn, outChannel: ch1out}})
+			wf.AddTask(&extremeValueCheckTask{BaseTask: BaseTask{Name: "extremeValueCheckTask", State: "new", ID: bson.NewObjectId(), inChannel: workflowIn, outChannel: ch1out}, MinValue: "10", MaxValue: "20"})
 
 			ch2out := make(chan string)
-			wf.AddTask(&sendEmailTask{BaseTask{Name: "sendEmailTask", State: "new", ID: bson.NewObjectId(), inChannel: ch1out, outChannel: ch2out}})
+			wf.AddTask(&sendEmailTask{BaseTask: BaseTask{Name: "sendEmailTask", State: "new", ID: bson.NewObjectId(), inChannel: ch1out, outChannel: ch2out}, EmailAddress: "someuser@gmail.com"})
 
 			ch3out := make(chan string)
 			wf.AddTask(&sendSmsTask{BaseTask{Name: "sendSmsTask", State: "new", ID: bson.NewObjectId(), inChannel: ch2out, outChannel: ch3out}})
@@ -103,15 +104,140 @@ func main() {
 
 			ch5out := make(chan string)
 			ht := NewHumanTask("ht1")
+			ht.UserID = "user21"
+			ht.ResolvedTime = "27-10-2017 15:43:00"
 			ht.inChannel = ch4out
 			ht.outChannel = ch5out
 			wf.AddTask(ht)
 
-			wf.AddTask(&sendToDatabase{BaseTask{Name: "sendToDatabase", inChannel: ch5out, outChannel: workflowOut}})
+			wf.AddTask(&sendToDatabase{BaseTask: BaseTask{Name: "sendToDatabase", inChannel: ch5out, outChannel: workflowOut}, DatabaseName: "testDatabase"})
 
 			// ---------------------------
 			SaveWorkflow(wf)
 			// ---------------------------
+
+			//TEST ____________________________________________
+			//_________________________________________________
+			asdf := GetWorkflow(wf)
+			for _, nt := range asdf.Tasks {
+
+				// switch nttype := nt.(type) {
+				// case *someHumanTask:
+				// 	fmt.Println("someHumanTask*")
+				// case *extremeValueCheckTask:
+				// 	fmt.Println("extremeValueCheckTask*")
+				// case *sendEmailTask:
+				// 	fmt.Println("sendEmailTask*")
+				// case *sendSmsTask:
+				// 	fmt.Println("sendSmsTask*")
+				// case *twitterPostTask:
+				// 	fmt.Println("twitterPostTask*")
+				// case *sendToDatabase:
+				// 	fmt.Println("sendToDatabase*")
+				// case someHumanTask:
+				// 	fmt.Println("someHumanTask")
+				// case extremeValueCheckTask:
+				// 	fmt.Println("extremeValueCheckTask")
+				// case sendEmailTask:
+				// 	fmt.Println("sendEmailTask")
+				// case sendSmsTask:
+				// 	fmt.Println("sendSmsTask")
+				// case twitterPostTask:
+				// 	fmt.Println("twitterPostTask")
+				// case sendToDatabase:
+				// 	fmt.Println("sendToDatabase")
+				// case bson.M:
+				// 	fmt.Println("bson.M")
+				// default:
+				// 	fmt.Println("----default-----")
+				// 	fmt.Println(nttype)
+				// }
+
+				// aaa0 := nt.(bson.M)
+				// fmt.Println(aaa0)
+
+				// aaa2 := nt.(bson.M)["minValue"]
+				// fmt.Println(aaa2)
+
+				// aaa1 := nt.(bson.M)["basetask"]
+				// fmt.Println(aaa1)
+				// // aaa1a := aaa1.(BaseTask)
+				// // BaseTask(aaa1)
+
+				baseTaskVariable := nt.(bson.M)["basetask"]
+				concreteTaskVariable := nt.(bson.M)
+
+				//BaseTask
+				asdf := BaseTask{}
+				bodyBytes, _ := json.Marshal(baseTaskVariable)
+				json.Unmarshal(bodyBytes, &asdf)
+				fmt.Println(asdf)
+
+				//COCNRETE TASK
+				if asdf.Name == "extremeValueCheckTask" {
+					asdf2 := extremeValueCheckTask{BaseTask: asdf}
+					bodyBytes, _ := json.Marshal(concreteTaskVariable)
+					json.Unmarshal(bodyBytes, &asdf2)
+
+					fmt.Println(asdf2)
+					fmt.Println(asdf2.ID)
+					fmt.Println(asdf2.Name)
+					fmt.Println(asdf2.MinValue)
+					fmt.Println(asdf2.MaxValue)
+				} else if asdf.Name == "someHumanTask" {
+					asdf2 := someHumanTask{BaseTask: asdf}
+					bodyBytes, _ := json.Marshal(concreteTaskVariable)
+					json.Unmarshal(bodyBytes, &asdf2)
+
+					fmt.Println(asdf2)
+					fmt.Println(asdf2.ID)
+					fmt.Println(asdf2.Name)
+					fmt.Println(asdf2.UserID)
+					fmt.Println(asdf2.ResolvedTime)
+				} else if asdf.Name == "sendEmailTask" {
+					asdf2 := sendEmailTask{BaseTask: asdf}
+					bodyBytes, _ := json.Marshal(concreteTaskVariable)
+					json.Unmarshal(bodyBytes, &asdf2)
+
+					fmt.Println(asdf2)
+					fmt.Println(asdf2.ID)
+					fmt.Println(asdf2.Name)
+					fmt.Println(asdf2.EmailAddress)
+				} else if asdf.Name == "sendSmsTask" {
+					asdf2 := sendSmsTask{BaseTask: asdf}
+					bodyBytes, _ := json.Marshal(concreteTaskVariable)
+					json.Unmarshal(bodyBytes, &asdf2)
+
+					fmt.Println(asdf2)
+					fmt.Println(asdf2.ID)
+					fmt.Println(asdf2.Name)
+				} else if asdf.Name == "twitterPostTask" {
+					asdf2 := twitterPostTask{BaseTask: asdf}
+					bodyBytes, _ := json.Marshal(concreteTaskVariable)
+					json.Unmarshal(bodyBytes, &asdf2)
+
+					fmt.Println(asdf2)
+					fmt.Println(asdf2.ID)
+					fmt.Println(asdf2.Name)
+				} else if asdf.Name == "sendToDatabase" {
+					asdf2 := sendToDatabase{BaseTask: asdf}
+					bodyBytes, _ := json.Marshal(concreteTaskVariable)
+					json.Unmarshal(bodyBytes, &asdf2)
+
+					fmt.Println(asdf2)
+					fmt.Println(asdf2.ID)
+					fmt.Println(asdf2.Name)
+					fmt.Println(asdf2.DatabaseName)
+				}
+
+				// v := reflect.ValueOf(nt)
+				// t := v.Type()
+				// k := t.Kind()
+				// fmt.Println(v)
+				// fmt.Println(t)
+				// fmt.Println(k)
+			}
+			//_________________________________________________
 
 			wf.Run()
 		}()

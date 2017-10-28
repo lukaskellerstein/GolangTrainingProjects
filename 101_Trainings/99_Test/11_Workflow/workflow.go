@@ -13,7 +13,7 @@ type Workflow struct {
 	ID    bson.ObjectId `json:"_id" bson:"_id,omitempty"`
 	Name  string        `json:"name" bson:"name"`
 	State string        `json:"state" bson:"state"`
-	Tasks []BaseTask    `json:"tasks" bson:"tasks"`
+	Tasks []interface{} `json:"tasks" bson:"tasks"`
 }
 
 // NewWorkflow creates a new workflow definition.
@@ -22,7 +22,7 @@ func NewWorkflow(name string) *Workflow {
 		ID:    bson.NewObjectId(),
 		Name:  name,
 		State: "new",
-		Tasks: make([]BaseTask, 0),
+		Tasks: make([]interface{}, 0),
 	}
 
 	//SaveWorkflow(wf)
@@ -88,7 +88,7 @@ func SaveWorkflow(wf *Workflow) {
 }
 
 // AddTask add task with name.
-func (wf *Workflow) AddTask(task BaseTask) {
+func (wf *Workflow) AddTask(task interface{}) {
 	wf.Tasks = append(wf.Tasks, task)
 }
 
@@ -97,51 +97,33 @@ func (wf *Workflow) Run() error {
 	return wf.run(wf.Tasks)
 }
 
-func (wf *Workflow) run(tasks []BaseTask) error {
+func (wf *Workflow) run(tasks []interface{}) error {
 	wf.State = "inprogress"
 
-	// myChan := make(chan string)
-	// errChan := make(chan error)
-	//var wg sync.WaitGroup
-
 	for _, nt := range tasks {
-		//wg.Add(1)
 
-		fmt.Println("workflow: Start task: " + nt.Name)
+		switch nttype := nt.(type) {
+		case *someHumanTask:
+			fmt.Println("someHumanTask - ", nttype)
+			// aaa := nttype.(*someHumanTask)
+			fmt.Println(nttype.UserID)
 
-		go func(t BaseTask) {
-			t.Execute()
-			//wg.Done()
-		}(nt)
+		case *extremeValueCheckTask:
+			fmt.Println("extremeValueCheckTask -", nttype)
+		case *sendEmailTask:
+			fmt.Println("sendEmailTask -", nttype)
+		case *sendSmsTask:
+			fmt.Println("sendSmsTask -", nttype)
+		case *twitterPostTask:
+			fmt.Println("twitterPostTask -", nttype)
+		case *sendToDatabase:
+			fmt.Println("sendToDatabase -", nttype)
+		default:
+			fmt.Println("----default-----", nttype)
+			// fmt.Println(nttype)
+		}
 
-		fmt.Println("workflow: Run task: " + nt.Name)
 	}
-
-	// resultChan := make(chan error)
-	// go func() {
-	// 	var result *multierror.Error
-	// 	for err := range errChan {
-	// 		result = multierror.Append(result, err)
-	// 	}
-	// 	resultChan <- result.ErrorOrNil()
-	// }()
-
-	// wg.Wait()
-	// close(errChan)
-
-	//??? - poradne pochopit, proc to spoustim v nove goroutine
-	// go func() {
-	// 	wg.Wait()
-	// 	close(myChan)
-	// }()
-
-	// for message := range myChan {
-	// 	fmt.Println(message)
-	// }
-
-	// go func() {
-	// 	wg.Wait()
-	// }()
 
 	wf.State = "completed"
 	return nil
