@@ -6,6 +6,17 @@
     },
     "configurations": [
         {
+            "name": "02_Variables",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "remotePath": "",
+            "program": "${workspaceRoot}/02_Variables",
+            "env": {},
+            "args": [],
+            "showLog": true
+        },
+        {
             "name": "10_OOP/01_Basics",
             "type": "go",
             "request": "launch",
