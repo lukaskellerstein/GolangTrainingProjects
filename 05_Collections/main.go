@@ -23,8 +23,10 @@ func main() {
 	for v := range slice1 {
 		fmt.Printf("%v\n", v)
 	}
+	// ************************
 	// Slice(= List) - created without initial values
 	// length = capacity
+	// ************************
 	slice2 := make([]string, 3)
 	// length and capacity
 	// or slice3 := make([]string, 3, 3)
@@ -44,7 +46,9 @@ func main() {
 	//delete
 	slice2 = remove(slice2, 3)
 
+	// ************************
 	//maps -----------------------------------------
+	// ************************
 	main2()
 
 	fmt.Println("END")
