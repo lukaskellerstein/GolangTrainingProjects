@@ -1,4 +1,4 @@
 whole directory must be located in $GOPATH/src
 in my case is 
-C://lukas/go on windows
+C://$USER/go on windows
 $HOME/go on linux
