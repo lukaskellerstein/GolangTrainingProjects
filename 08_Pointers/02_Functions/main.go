@@ -6,6 +6,8 @@ import (
 
 func main() {
 
+	proofChangeMe2()
+
 }
 
 // ********************************************
@@ -33,6 +35,8 @@ func proofChangeMe1() {
 // Passing reference - value
 // ********************************************
 
+// !!! int,string,rune ... etc. DON'T CHANGED !!!!
+
 func changeMe2(z *string) {
 	fmt.Println(z) // Todd
 	*z = "Rocky"
@@ -42,11 +46,14 @@ func changeMe2(z *string) {
 func proofChangeMe2() {
 	testString := "Adam"
 	changeMe1(testString)
+	fmt.Println(testString) // Adam
 }
 
 // ********************************************
 // Passing reference - struct
 // ********************************************
+
+// !!! struct ... IS CHANGED !!!!
 
 type customer struct {
 	name string
@@ -65,4 +72,6 @@ func proofChangeMe3() {
 	c1 := customer{"Todd", 44}
 
 	changeMe3(&c1)
+
+	fmt.Println(c1) // &{Rocky 44}
 }
