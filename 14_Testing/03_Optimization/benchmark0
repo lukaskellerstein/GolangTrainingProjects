@@ -1,0 +1,5 @@
+goos: linux
+goarch: amd64
+BenchmarkHandleStructAdd-8   	   50000	     33294 ns/op
+PASS
+ok  	_/home/cellarstone/Projects/Github/lukaskellerstein/GolangTrainingProjects/14_Testing/03_Optimization	1.992s
