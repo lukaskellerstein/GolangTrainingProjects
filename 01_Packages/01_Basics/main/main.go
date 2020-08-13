@@ -4,6 +4,7 @@ import "fmt"
 import "../somepackage1"
 import "../somepackage2"
 
+
 func main() {
 	aaa := ""
 

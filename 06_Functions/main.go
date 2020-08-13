@@ -38,14 +38,34 @@ func testfunction5(values []string) []string {
 }
 
 // ********************************************
-// Callbacks - accept and return functions
+// HOF - High Ordered function
+// Functions which
+// a) function has function as input parameter
+// b) function which returns another function
+
 // ********************************************
 
+// Accept function as input parameter
+func print(x, y int, area func(int, int) int) {
+	fmt.Printf("Area is: %d\n", area(x, y))
+}
+
+// Returns a function
+func getAreaFunc() func(int, int) int {
+	return func(x, y int) int {
+		return x * y
+	}
+}
+
+// Others
 func testfunction6(value string, callback func(string)) {
 	value += " - 42"
 	callback(value)
 }
 
+// ********************************************
+// INNER FUNCTION CALL
+// ********************************************
 func proofTestfunction6() {
 	testfunction6("Number of whole universe", func(text string) {
 		fmt.Println(text)
